@@ -24,8 +24,7 @@ class BatchQueueServiceProvider extends ServiceProvider
             function ($app) {
                 return new QueueWorkBatchCommand(
                     $app['queue'],
-                    $app['queue.worker'],
-                    $app['Illuminate\Foundation\Exceptions\Handler']
+                    $app['queue.worker']
                 );
             }
         );
