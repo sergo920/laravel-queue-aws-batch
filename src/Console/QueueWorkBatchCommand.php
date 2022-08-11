@@ -13,7 +13,6 @@ namespace DNXLabs\LaravelQueueAwsBatch\Console;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Queue\Console\WorkCommand;
 use Illuminate\Queue\QueueManager;
 use Illuminate\Queue\Worker;
@@ -21,7 +20,6 @@ use Illuminate\Queue\WorkerOptions;
 use DNXLabs\LaravelQueueAwsBatch\Exceptions\JobNotFoundException;
 use DNXLabs\LaravelQueueAwsBatch\Exceptions\UnsupportedException;
 use DNXLabs\LaravelQueueAwsBatch\Queues\BatchQueue;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class QueueWorkBatchCommand extends WorkCommand
 {
@@ -44,26 +42,17 @@ class QueueWorkBatchCommand extends WorkCommand
     protected $manager;
     protected $exceptions;
 
-    public function __construct(QueueManager $manager, Worker $worker, Handler $exceptions)
+    public function __construct(QueueManager $manager, Worker $worker)
     {
         parent::__construct($worker, Container::getInstance()->make(Repository::class));
         $this->manager = $manager;
-        $this->exceptions = $exceptions;
     }
 
     public function handle()
     {
         $this->listenForEvents();
 
-        try {
-            $this->runJob();
-        } catch (\Exception $e) {
-            $this->exceptions->report($e);
-            throw $e;
-        } catch (\Throwable $e) {
-            $this->exceptions->report(new FatalThrowableError($e));
-            throw $e;
-        }
+        $this->runJob();
     }
 
     // TOOD: Refactor out the logic here into an extension of the Worker class
